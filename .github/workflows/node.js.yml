@@ -7,26 +7,32 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-and-deploy:
 
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [14.x, 16.x, 18.x]  # It's usually better to build with a specific version
 
     steps:
     - uses: actions/checkout@v3
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
     - run: npm ci
-    - run: npm run build --if-present
+    - run: npm run build
     - run: npm test
 
     - name: Deploy 🚀
+      if: github.ref == 'refs/heads/main' && matrix.node-version == '16.x'  # Only deploy with Node 16.x when on main branch
       uses: JamesIves/github-pages-deploy-action@v4
       with:
-        folder: dist # The folder the action should deploy.
+        branch: gh-pages  # The branch the action should deploy to.
+        folder: dist  # The folder the action should deploy.
+        clean: true  # Automatically remove deleted files from the deployment
+        token: ${{ secrets.GITHUB_TOKEN }}  # GitHub will automatically create this secret to use in your workflow.
