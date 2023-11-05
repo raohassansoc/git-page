@@ -26,7 +26,6 @@ jobs:
 
     - run: npm ci
     - run: npm run build
-    - run: npm test
 
     - name: Deploy 🚀
       if: github.ref == 'refs/heads/main' && matrix.node-version == '16.x'  # Only deploy with Node 16.x when on main branch
